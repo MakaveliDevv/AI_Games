@@ -16,7 +16,6 @@ public class Flock : MonoBehaviour
     [Range(1f, 10f)] public float neighborRadius = 1.5f;
     [Range(0f, 1f)] public float avoidanceRadiusMultiplier = .5f;
 
-    
     private float squareMaxSpeed;
     private float squareNeighborRadius;
     private float squareAvoidanceRadius;
@@ -33,12 +32,13 @@ public class Flock : MonoBehaviour
             FlockAgent newAgent = Instantiate
             (
                 agentPrefab,
-                Random.insideUnitCircle * startingCount * AgentDensity,
+                startingCount * AgentDensity * Random.insideUnitCircle,
                 Quaternion.Euler(Vector3.forward * Random.Range(0f, 360f)),
                 transform
             );
 
             newAgent.name = "Agent " + i;
+            newAgent.Initialize(this);
             agents.Add(newAgent);
         }
     }
@@ -48,16 +48,17 @@ public class Flock : MonoBehaviour
         foreach (FlockAgent agent in agents)
         {
             List<Transform> context = GetNearbyObjects(agent);
-            agent.GetComponentInChildren<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, context.Count / 6f);
-            // Vector2 move = flockBehavior.CalculateMove(agent, context, this);
-            // move *= driveFactor;
+            //agent.GetComponentInChildren<SpriteRenderer>().color = Color.Lerp(Color.white, Color.red, context.Count / 6f);
+            
+            Vector2 move = flockBehavior.CalculateMove(agent, context, this);
+            move *= driveFactor;
 
-            // if(move.sqrMagnitude > squareMaxSpeed) 
-            // {
-            //     move = move.normalized * maxSpeed;
-            // }
+            if(move.sqrMagnitude > squareMaxSpeed) 
+            {
+                move = move.normalized * maxSpeed;
+            }
 
-            // agent.Move(move);
+            agent.Move(move);
         }
     }
     
