@@ -1,9 +1,13 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = "Flock/Behavior/Cohesion")]
+[CreateAssetMenu(menuName = "Flock/Behavior/CohesionBehavior")]
 public class CohesionBehavior : FilteredFlockBehavior
 {
+    public float agentSmoothTime = .5f;
+    private Vector2 currentVelocity;
+
     public override Vector2 CalculateMove(FlockAgent agent, List<Transform> context, Flock flock)
     {
         // If no neighbours, return no adjusment
@@ -13,17 +17,6 @@ public class CohesionBehavior : FilteredFlockBehavior
 
         // Add all points together 
         Vector2 cohesionMove = Vector2.zero;
-
-        // List<Transform> filteredContext;
-
-        // if(filter == null) 
-        // {
-        //     filteredContext = context;
-        // }
-        // else 
-        // {
-        //     filteredContext = filter.Filter(agent, context);
-        // }
         List<Transform> filteredContext = (filter == null) ? context : filter.Filter(agent, context);
         
         foreach (Transform item in filteredContext)
@@ -37,6 +30,8 @@ public class CohesionBehavior : FilteredFlockBehavior
         // Create offset from agent position
         cohesionMove -= (Vector2)agent.transform.position;
 
+        cohesionMove = Vector2.SmoothDamp(agent.transform.up, cohesionMove, ref currentVelocity, agentSmoothTime);
+        
         return cohesionMove;
     }
 }
